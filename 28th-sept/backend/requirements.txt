@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+transformers
+torch
+Install:
+pip install -r requirements.txt
