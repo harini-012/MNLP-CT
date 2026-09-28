@@ -30,6 +30,33 @@
             padding: 20px;
             border: 1px solid #ccc;
         }
+        table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border: 1px solid #ccc;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    width: 30%;
+    background-color: #f2f2f2;
+}
+
+td {
+    background-color: white;
+}
+
+#result {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
     </style>
 </head>
 
@@ -48,60 +75,122 @@
         Analyze Feedback
     </button>
 
-    <div id="result"></div>
+   <div id="result"></div>
 
+<script>
 
-    <script>
+async function analyzeFeedback() {
 
-        async function analyzeFeedback() {
+    const text =
+        document.getElementById("feedback").value;
 
-            const text =
-                document.getElementById("feedback").value;
+    if (!text.trim()) {
+        alert("Please enter feedback.");
+        return;
+    }
 
-            if (!text.trim()) {
-                alert("Please enter feedback.");
-                return;
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/analyze",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    text: text
+                })
             }
+        );
 
-            const response = await fetch(
-                "http://127.0.0.1:8000/analyze",
-                {
-                    method: "POST",
+        const data = await response.json();
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+        document.getElementById("result").innerHTML = `
 
-                    body: JSON.stringify({
-                        text: text
-                    })
-                }
-            );
+            <h2>Analysis Result</h2>
 
-            const data = await response.json();
+            <table>
 
-            document.getElementById("result").innerHTML = `
-                <h2>Analysis Result</h2>
+                <tr>
+                    <th>Feedback</th>
+                    <td>${data.text}</td>
+                </tr>
 
-                <p>
-                    <strong>Feedback:</strong>
-                    ${data.text}
-                </p>
+                <tr>
+                    <th>Sentiment</th>
+                    <td>
+                        <strong>${data.sentiment}</strong>
+                    </td>
+                </tr>
 
-                <p>
-                    <strong>Sentiment:</strong>
-                    ${data.sentiment}
-                </p>
+                <tr>
+                    <th>Confidence</th>
+                    <td>
+                        <strong>${data.confidence}%</strong>
+                    </td>
+                </tr>
 
-                <p>
-                    <strong>Confidence:</strong>
-                    ${data.confidence}%
-                </p>
-            `;
-        }
+                <tr>
+                    <th>Category</th>
+                    <td>
+                        <strong>${data.category}</strong>
+                    </td>
+                </tr>
 
-    </script>
+                <tr>
+                    <th>Emotion</th>
+                    <td>
+                        <strong>${data.emotion}</strong>
+                    </td>
+                </tr>
 
+                <tr>
+                    <th>Keywords</th>
+                    <td>
+                        <strong>${data.keywords}</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Word Count</th>
+                    <td>
+                        <strong>${data.word_count}</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Recommendation</th>
+                    <td>
+                        <strong>${data.recommendation}</strong>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Priority</th>
+                    <td>
+                        <strong>${data.priority}</strong>
+                    </td>
+                </tr>
+
+            </table>
+        `;
+
+    } catch (error) {
+
+        document.getElementById("result").innerHTML = `
+            <p style="color:red;">
+                Error connecting to the FastAPI server.
+            </p>
+        `;
+
+        console.error(error);
+    }
+}
+
+</script>
 </body>
 
 </html>
